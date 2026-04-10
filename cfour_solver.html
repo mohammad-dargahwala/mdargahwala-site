@@ -1,595 +1,957 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Connect 4 Solver</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+      @import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap");
 
-        /* Theme Definitions */
-        :root[data-theme="dark"] {
-            --bg: #0a0a0f; --surface: #12121a; --border: #1e1e2e;
-            --text: #e8e8f0; --muted: #55556a;
-            --p1: #ff3c3c; --p2: #ffcc00;
-            --board: #1e1e2e; --cell-bg: #0a0a0f;
-            --good: #00ff88; --bad: #ff3c3c; --draw: #ffcc00; --full: #333344;
-            --primary: #5a67d8; --primary-hover: #4c51bf;
-            --danger: #e53e3e; --danger-hover: #c53030;
-        }
+      /* Theme Definitions */
+      :root[data-theme="dark"] {
+        --bg: #0a0a0f;
+        --surface: #12121a;
+        --border: #1e1e2e;
+        --text: #e8e8f0;
+        --muted: #55556a;
+        --p1: #ff3c3c;
+        --p2: #ffcc00;
+        --board: #1e1e2e;
+        --cell-bg: #0a0a0f;
+        --good: #00ff88;
+        --bad: #ff3c3c;
+        --draw: #ffcc00;
+        --full: #333344;
+        --primary: #5a67d8;
+        --primary-hover: #4c51bf;
+        --danger: #e53e3e;
+        --danger-hover: #c53030;
+      }
 
-        :root[data-theme="light"] {
-            --bg: #f3f4f6; --surface: #ffffff; --border: #e5e7eb;
-            --text: #1f2937; --muted: #6b7280;
-            --p1: #ef4444; --p2: #eab308;
-            --board: #3b82f6; --cell-bg: #f3f4f6;
-            --good: #10b981; --bad: #ef4444; --draw: #f59e0b; --full: #9ca3af;
-            --primary: #3b82f6; --primary-hover: #2563eb;
-            --danger: #ef4444; --danger-hover: #dc2626;
-        }
+      :root[data-theme="light"] {
+        --bg: #f3f4f6;
+        --surface: #ffffff;
+        --border: #e5e7eb;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --p1: #ef4444;
+        --p2: #eab308;
+        --board: #3b82f6;
+        --cell-bg: #f3f4f6;
+        --good: #10b981;
+        --bad: #ef4444;
+        --draw: #f59e0b;
+        --full: #9ca3af;
+        --primary: #3b82f6;
+        --primary-hover: #2563eb;
+        --danger: #ef4444;
+        --danger-hover: #dc2626;
+      }
 
-        :root[data-theme="ocean"] {
-            --bg: #0f172a; --surface: #1e293b; --border: #334155;
-            --text: #f8fafc; --muted: #64748b;
-            --p1: #f43f5e; --p2: #38bdf8;
-            --board: #0284c7; --cell-bg: #0f172a;
-            --good: #34d399; --bad: #fb7185; --draw: #fbbf24; --full: #475569;
-            --primary: #0284c7; --primary-hover: #0369a1;
-            --danger: #f43f5e; --danger-hover: #e11d48;
-        }
+      :root[data-theme="ocean"] {
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --border: #334155;
+        --text: #f8fafc;
+        --muted: #64748b;
+        --p1: #f43f5e;
+        --p2: #38bdf8;
+        --board: #0284c7;
+        --cell-bg: #0f172a;
+        --good: #34d399;
+        --bad: #fb7185;
+        --draw: #fbbf24;
+        --full: #475569;
+        --primary: #0284c7;
+        --primary-hover: #0369a1;
+        --danger: #f43f5e;
+        --danger-hover: #e11d48;
+      }
 
-        :root[data-theme="synthwave"] {
-            --bg: #170b29; --surface: #2d1b4e; --border: #4c1d95;
-            --text: #fbcfe8; --muted: #a78bfa;
-            --p1: #f0abfc; --p2: #5eead4;
-            --board: #5b21b6; --cell-bg: #170b29;
-            --good: #4ade80; --bad: #f43f5e; --draw: #fde047; --full: #4c1d95;
-            --primary: #9333ea; --primary-hover: #7e22ce;
-            --danger: #be185d; --danger-hover: #9f1239;
-        }
+      :root[data-theme="synthwave"] {
+        --bg: #170b29;
+        --surface: #2d1b4e;
+        --border: #4c1d95;
+        --text: #fbcfe8;
+        --muted: #a78bfa;
+        --p1: #f0abfc;
+        --p2: #5eead4;
+        --board: #5b21b6;
+        --cell-bg: #170b29;
+        --good: #4ade80;
+        --bad: #f43f5e;
+        --draw: #fde047;
+        --full: #4c1d95;
+        --primary: #9333ea;
+        --primary-hover: #7e22ce;
+        --danger: #be185d;
+        --danger-hover: #9f1239;
+      }
 
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            -webkit-tap-highlight-color: transparent; 
-        }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+        cursor: none !important; /* Hide native cursor everywhere */
+      }
 
-        /* Hide default cursor on desktop when hovering a column */
-        @media (pointer: fine) {
-            .col-wrapper { 
-                cursor: none; 
-            }
-        }
+      /* Custom Cursor */
+      .custom-cursor {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        transition:
+          width 0.2s,
+          height 0.2s,
+          background 0.2s,
+          opacity 0.2s;
+        mix-blend-mode: difference;
+      }
 
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Space Mono', monospace;
-            min-height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            transition: background 0.3s, color 0.3s;
-            overflow-x: hidden;
-        }
+      .custom-cursor.hovering {
+        width: 24px;
+        height: 24px;
+        background: var(--good);
+        box-shadow: 0 0 15px var(--good);
+      }
 
-        .container {
-            width: 100%;
-            max-width: 600px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            z-index: 10;
-        }
+      .custom-cursor.hidden {
+        opacity: 0 !important;
+      }
 
-        /* Header & Settings */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 5px;
-        }
-
-        h1 { font-size: 1.5rem; letter-spacing: -1px; text-shadow: 0 0 10px rgba(255,255,255,0.1); }
-
-        select {
-            background: var(--surface);
-            color: var(--text);
-            border: 1px solid var(--border);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            outline: none;
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        select:hover { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 10px rgba(90, 103, 216, 0.2); 
-            transform: translateY(-2px);
-        }
-
-        .settings-panel {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .flex-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        /* Player Toggle */
-        .player-toggle {
-            display: flex;
-            background: var(--bg);
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-
-        .player-toggle button {
-            flex: 1;
-            padding: 8px 15px;
-            background: transparent;
-            border: none;
-            color: var(--muted);
-            font-family: inherit;
-            font-weight: bold;
-            font-size: 0.85rem;
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        .player-toggle button:hover { background: rgba(255,255,255,0.05); }
-        .player-toggle button.active { background: var(--border); color: var(--text); }
-        .player-toggle button:active { transform: scale(0.95); }
-
-        /* Switch Toggles */
-        .switch-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            color: var(--muted);
-            transition: color 0.3s;
-        }
-
-        .switch-container:hover { color: var(--text); }
-
-        .switch {
-            position: relative;
-            width: 40px;
-            height: 22px;
-            background: var(--bg);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        .switch::after {
-            content: '';
-            position: absolute;
-            top: 2px; left: 2px;
-            width: 16px; height: 16px;
-            background: var(--muted);
-            border-radius: 50%;
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        input[type="checkbox"] { display: none; }
-        input[type="checkbox"]:checked + .switch { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 8px var(--primary); }
-        input[type="checkbox"]:checked + .switch::after { left: 20px; background: #fff; }
-        
-        .toggles-group {
-            display: flex;
-            gap: 15px;
-        }
-
-        /* Status Bar */
-        .status-bar {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .turn-indicator {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 700;
-        }
-
-        .turn-dot {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: var(--p1);
-            box-shadow: 0 0 10px var(--p1);
-            transition: background 0.3s, box-shadow 0.3s;
-        }
-
-        .move-counter { color: var(--muted); font-size: 0.9rem; }
-
-        /* Game Board Area */
-        .game-area {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 1.5vmin;
-            background: var(--surface);
-            padding: 1.5vmin;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-        }
-
+      /* Hide default cursor on desktop when hovering a column */
+      @media (pointer: fine) {
         .col-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            position: relative;
-            border-radius: 20px;
-            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), background 0.2s;
+          cursor: none;
         }
+      }
 
-        @media (hover: hover) {
-            .col-wrapper:hover { 
-                background: rgba(255, 255, 255, 0.05); 
-                transform: translateY(-4px);
-            }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Space Mono", monospace;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        transition:
+          background 0.3s,
+          color 0.3s;
+        overflow-x: hidden;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 600px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        z-index: 10;
+      }
+
+      /* Header & Settings */
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 5px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        letter-spacing: -1px;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      }
+
+      select {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.9rem;
+        outline: none;
+        transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+
+      select:hover {
+        border-color: var(--primary);
+        box-shadow: 0 0 10px rgba(90, 103, 216, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .settings-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .flex-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      /* Player Toggle */
+      .player-toggle {
+        display: flex;
+        background: var(--bg);
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+      }
+
+      .player-toggle button {
+        flex: 1;
+        padding: 8px 15px;
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        font-family: inherit;
+        font-weight: bold;
+        font-size: 0.85rem;
+        transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+
+      .player-toggle button:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .player-toggle button.active {
+        background: var(--border);
+        color: var(--text);
+      }
+      .player-toggle button:active {
+        transform: scale(0.95);
+      }
+
+      /* Switch Toggles */
+      .switch-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: var(--muted);
+        transition: color 0.3s;
+      }
+
+      .switch-container:hover {
+        color: var(--text);
+      }
+
+      .switch {
+        position: relative;
+        width: 40px;
+        height: 22px;
+        background: var(--bg);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+
+      .switch::after {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        background: var(--muted);
+        border-radius: 50%;
+        transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+
+      input[type="checkbox"] {
+        display: none;
+      }
+      input[type="checkbox"]:checked + .switch {
+        background: var(--primary);
+        border-color: var(--primary);
+        box-shadow: 0 0 8px var(--primary);
+      }
+      input[type="checkbox"]:checked + .switch::after {
+        left: 20px;
+        background: #fff;
+      }
+
+      .toggles-group {
+        display: flex;
+        gap: 15px;
+      }
+
+      /* Status Bar */
+      .status-bar {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .turn-indicator {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+      }
+
+      .turn-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--p1);
+        box-shadow: 0 0 10px var(--p1);
+        transition:
+          background 0.3s,
+          box-shadow 0.3s;
+      }
+
+      .move-counter {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      /* Game Board Area */
+      .game-area {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1.5vmin;
+        background: var(--surface);
+        padding: 1.5vmin;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .col-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        position: relative;
+        border-radius: 20px;
+        transition:
+          transform 0.2s cubic-bezier(0.25, 1, 0.5, 1),
+          background 0.2s;
+      }
+
+      @media (hover: hover) {
+        .col-wrapper:hover {
+          background: rgba(255, 255, 255, 0.05);
+          transform: translateY(-4px);
         }
-        .col-wrapper:active { transform: translateY(2px) scale(0.98); }
+      }
+      .col-wrapper:active {
+        transform: translateY(2px) scale(0.98);
+      }
 
-        /* Recommendation Highlight */
+      /* Recommendation Highlight */
+      .column {
+        background: var(--board);
+        border-radius: 20px;
+        padding: 6px;
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 6px;
+        transition:
+          box-shadow 0.3s,
+          border 0.3s,
+          background 0.3s;
+        border: 2px solid transparent;
+      }
+
+      .column.recommended {
+        border-color: var(--good);
+        box-shadow:
+          0 0 15px rgba(0, 255, 136, 0.4),
+          inset 0 0 10px rgba(0, 255, 136, 0.2);
+        animation: pulse-glow 2s infinite alternate;
+      }
+
+      .score {
+        text-align: center;
+        font-size: 0.85rem;
+        font-weight: 700;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background: var(--bg);
+        transition:
+          color 0.3s,
+          opacity 0.3s;
+      }
+
+      body.hide-scores .score {
+        opacity: 0;
+        pointer-events: none;
+      }
+      body.hide-seq .sequence-box {
+        display: none !important;
+      }
+
+      .score.good {
+        color: var(--good);
+        text-shadow: 0 0 5px var(--good);
+      }
+      .score.bad {
+        color: var(--bad);
+      }
+      .score.draw {
+        color: var(--draw);
+      }
+      .score.full {
+        color: var(--full);
+      }
+      .score.loading {
+        color: var(--muted);
+        animation: pulse 1s infinite alternate;
+      }
+
+      .cell {
+        width: 100%;
+        aspect-ratio: 1;
+        background: var(--cell-bg);
+        border-radius: 50%;
+        transition:
+          background 0.3s,
+          transform 0.2s;
+        box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cell.p1 {
+        background: var(--p1);
+        box-shadow:
+          inset 0 -4px 6px rgba(0, 0, 0, 0.2),
+          0 0 12px rgba(0, 0, 0, 0.3);
+        animation: dropPiece 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+
+      .cell.p2 {
+        background: var(--p2);
+        box-shadow:
+          inset 0 -4px 6px rgba(0, 0, 0, 0.2),
+          0 0 12px rgba(0, 0, 0, 0.3);
+        animation: dropPiece 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+
+      .cell.ghost-p1 {
+        background: transparent;
+        border: 4px dashed var(--p1);
+        box-shadow:
+          0 0 10px rgba(255, 60, 60, 0.4),
+          inset 0 0 10px rgba(255, 60, 60, 0.4);
+        opacity: 1;
+        transform: scale(0.85);
+        animation: ghostPulse 1.5s infinite alternate;
+      }
+
+      .cell.ghost-p2 {
+        background: transparent;
+        border: 4px dashed var(--p2);
+        box-shadow:
+          0 0 10px rgba(255, 204, 0, 0.4),
+          inset 0 0 10px rgba(255, 204, 0, 0.4);
+        opacity: 1;
+        transform: scale(0.85);
+        animation: ghostPulse 1.5s infinite alternate;
+      }
+
+      .cell.winning-cell {
+        border: 4px solid #fff;
+        animation: winPulse 1.5s infinite alternate;
+        z-index: 5;
+      }
+
+      /* The Hollow Outlined Recommendation Piece */
+      .cell.recommended-cell::after {
+        content: "";
+        position: absolute;
+        inset: 4px;
+        border-radius: 50%;
+        border: 3px solid var(--good);
+        box-shadow:
+          0 0 12px var(--good),
+          inset 0 0 12px var(--good);
+        animation: pulse-ring 1.5s infinite alternate;
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      /* Sequence Box */
+      .sequence-box {
+        background: var(--surface);
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        font-size: 0.85rem;
+        color: var(--muted);
+        text-align: center;
+        word-break: break-all;
+      }
+
+      /* Bottom Controls */
+      .bottom-controls {
+        display: flex;
+        gap: 15px;
+        margin-top: 5px;
+        padding-bottom: 20px;
+      }
+
+      .large-btn {
+        flex: 1;
+        padding: 16px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border-radius: 12px;
+        border: none;
+        color: white;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+      }
+
+      .large-btn::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition:
+          width 0.5s ease-out,
+          height 0.5s ease-out,
+          opacity 0.5s;
+        z-index: -1;
+        opacity: 0;
+      }
+
+      .large-btn:hover:not(:disabled)::before {
+        width: 300px;
+        height: 300px;
+        opacity: 1;
+      }
+
+      .large-btn:active {
+        transform: scale(0.92);
+      }
+      .large-btn:disabled {
+        opacity: 0.4;
+        pointer-events: none;
+        filter: grayscale(1);
+      }
+
+      .btn-undo {
+        background: var(--primary);
+        box-shadow: 0 4px 15px rgba(90, 103, 216, 0.3);
+      }
+      .btn-undo:hover:not(:disabled) {
+        background: var(--primary-hover);
+        box-shadow: 0 8px 25px rgba(90, 103, 216, 0.6);
+        transform: translateY(-4px) scale(1.02);
+        animation: btnPulse 2s infinite ease-out;
+      }
+
+      .btn-reset {
+        background: var(--danger);
+        box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+      }
+      .btn-reset:hover {
+        background: var(--danger-hover);
+        box-shadow: 0 8px 25px rgba(229, 62, 62, 0.6);
+        transform: translateY(-4px) scale(1.02);
+        animation: btnShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+      }
+
+      /* Animations */
+      @keyframes btnPulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(90, 103, 216, 0.6);
+        }
+        70% {
+          box-shadow: 0 0 0 15px rgba(90, 103, 216, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(90, 103, 216, 0);
+        }
+      }
+
+      @keyframes btnShake {
+        10%,
+        90% {
+          transform: translateY(-4px) scale(1.02) rotate(-1deg);
+        }
+        20%,
+        80% {
+          transform: translateY(-4px) scale(1.02) rotate(2deg);
+        }
+        30%,
+        50%,
+        70% {
+          transform: translateY(-4px) scale(1.02) rotate(-3deg);
+        }
+        40%,
+        60% {
+          transform: translateY(-4px) scale(1.02) rotate(3deg);
+        }
+      }
+
+      @keyframes pulse {
+        from {
+          opacity: 0.5;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes pulse-glow {
+        0% {
+          box-shadow:
+            0 0 10px rgba(0, 255, 136, 0.2),
+            inset 0 0 5px rgba(0, 255, 136, 0.1);
+        }
+        100% {
+          box-shadow:
+            0 0 25px rgba(0, 255, 136, 0.5),
+            inset 0 0 15px rgba(0, 255, 136, 0.3);
+        }
+      }
+
+      @keyframes pulse-ring {
+        0% {
+          transform: scale(0.95);
+          opacity: 0.8;
+        }
+        100% {
+          transform: scale(1.05);
+          opacity: 1;
+          border-color: #fff;
+        }
+      }
+
+      @keyframes ghostPulse {
+        from {
+          transform: scale(0.85);
+          opacity: 0.6;
+        }
+        to {
+          transform: scale(0.95);
+          opacity: 1;
+        }
+      }
+
+      @keyframes winPulse {
+        from {
+          box-shadow:
+            0 0 15px #fff,
+            inset 0 0 15px #fff;
+          transform: scale(1);
+        }
+        to {
+          box-shadow:
+            0 0 30px #fff,
+            inset 0 0 30px #fff;
+          transform: scale(1.1);
+        }
+      }
+
+      @keyframes dropPiece {
+        0% {
+          transform: translateY(-400%);
+          opacity: 0;
+        }
+        60% {
+          transform: translateY(10%);
+          opacity: 1;
+        }
+        80% {
+          transform: translateY(-5%);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      /* Mobile Adjustments */
+      @media (max-width: 480px) {
+        body {
+          padding: 10px;
+        }
+        .game-area {
+          gap: 1vw;
+          padding: 1.5vw;
+          border-radius: 12px;
+        }
         .column {
-            background: var(--board);
-            border-radius: 20px;
-            padding: 6px;
-            display: flex;
-            flex-direction: column-reverse;
-            gap: 6px;
-            transition: box-shadow 0.3s, border 0.3s, background 0.3s;
-            border: 2px solid transparent;
+          padding: 4px;
+          gap: 4px;
+          border-radius: 12px;
         }
-
-        .column.recommended {
-            border-color: var(--good);
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4), inset 0 0 10px rgba(0, 255, 136, 0.2);
-            animation: pulse-glow 2s infinite alternate;
-        }
-
         .score {
-            text-align: center;
-            font-size: 0.85rem;
-            font-weight: 700;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            background: var(--bg);
-            transition: color 0.3s, opacity 0.3s;
+          font-size: 0.75rem;
+          height: 20px;
         }
-
-        body.hide-scores .score { opacity: 0; pointer-events: none; }
-        body.hide-seq .sequence-box { display: none !important; }
-
-        .score.good { color: var(--good); text-shadow: 0 0 5px var(--good); }
-        .score.bad { color: var(--bad); }
-        .score.draw { color: var(--draw); }
-        .score.full { color: var(--full); }
-        .score.loading { color: var(--muted); animation: pulse 1s infinite alternate; }
-
-        .cell {
-            width: 100%;
-            aspect-ratio: 1;
-            background: var(--cell-bg);
-            border-radius: 50%;
-            transition: background 0.3s, transform 0.2s;
-            box-shadow: inset 0 4px 6px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
+        h1 {
+          font-size: 1.3rem;
         }
-
-        .cell.p1 { 
-            background: var(--p1); 
-            box-shadow: inset 0 -4px 6px rgba(0,0,0,0.2), 0 0 12px rgba(0,0,0,0.3); 
-            animation: dropPiece 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        .flex-row {
+          flex-direction: column;
+          align-items: flex-start;
         }
-        
-        .cell.p2 { 
-            background: var(--p2); 
-            box-shadow: inset 0 -4px 6px rgba(0,0,0,0.2), 0 0 12px rgba(0,0,0,0.3); 
-            animation: dropPiece 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        .toggles-group {
+          width: 100%;
+          justify-content: space-between;
         }
-
-        .cell.ghost-p1 { 
-            background: transparent; 
-            border: 4px dashed var(--p1); 
-            box-shadow: 0 0 10px rgba(255, 60, 60, 0.4), inset 0 0 10px rgba(255, 60, 60, 0.4); 
-            opacity: 1; 
-            transform: scale(0.85); 
-            animation: ghostPulse 1.5s infinite alternate; 
+        .player-toggle {
+          width: 100%;
         }
-        
-        .cell.ghost-p2 { 
-            background: transparent; 
-            border: 4px dashed var(--p2); 
-            box-shadow: 0 0 10px rgba(255, 204, 0, 0.4), inset 0 0 10px rgba(255, 204, 0, 0.4); 
-            opacity: 1; 
-            transform: scale(0.85); 
-            animation: ghostPulse 1.5s infinite alternate; 
-        }
-
-        .cell.winning-cell {
-            border: 4px solid #fff;
-            animation: winPulse 1.5s infinite alternate;
-            z-index: 5;
-        }
-
-        /* The Hollow Outlined Recommendation Piece */
-        .cell.recommended-cell::after {
-            content: '';
-            position: absolute;
-            inset: 4px;
-            border-radius: 50%;
-            border: 3px solid var(--good);
-            box-shadow: 0 0 12px var(--good), inset 0 0 12px var(--good);
-            animation: pulse-ring 1.5s infinite alternate;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        /* Sequence Box */
-        .sequence-box {
-            background: var(--surface);
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            font-size: 0.85rem;
-            color: var(--muted);
-            text-align: center;
-            word-break: break-all;
-        }
-
-        /* Bottom Controls */
-        .bottom-controls {
-            display: flex;
-            gap: 15px;
-            margin-top: 5px;
-            padding-bottom: 20px;
-        }
-
-        .large-btn {
-            flex: 1;
-            padding: 16px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 12px;
-            border: none;
-            color: white;
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        .large-btn:active { transform: scale(0.94); }
-        .large-btn:disabled { opacity: 0.4; pointer-events: none; }
-        .btn-undo { background: var(--primary); box-shadow: 0 4px 15px rgba(90, 103, 216, 0.3); }
-        .btn-undo:hover:not(:disabled) { background: var(--primary-hover); box-shadow: 0 6px 20px rgba(90, 103, 216, 0.5); transform: translateY(-3px); }
-        .btn-reset { background: var(--danger); box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3); }
-        .btn-reset:hover { background: var(--danger-hover); box-shadow: 0 6px 20px rgba(229, 62, 62, 0.5); transform: translateY(-3px); }
-
-        /* Animations */
-        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
-        
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 10px rgba(0, 255, 136, 0.2), inset 0 0 5px rgba(0, 255, 136, 0.1); }
-            100% { box-shadow: 0 0 25px rgba(0, 255, 136, 0.5), inset 0 0 15px rgba(0, 255, 136, 0.3); }
-        }
-
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            100% { transform: scale(1.05); opacity: 1; border-color: #fff; }
-        }
-
-        @keyframes ghostPulse {
-            from { transform: scale(0.85); opacity: 0.6; }
-            to { transform: scale(0.95); opacity: 1; }
-        }
-
-        @keyframes winPulse {
-            from { box-shadow: 0 0 15px #fff, inset 0 0 15px #fff; transform: scale(1); }
-            to { box-shadow: 0 0 30px #fff, inset 0 0 30px #fff; transform: scale(1.1); }
-        }
-
-        @keyframes dropPiece {
-            0% { transform: translateY(-400%); opacity: 0; }
-            60% { transform: translateY(10%); opacity: 1; }
-            80% { transform: translateY(-5%); opacity: 1; }
-            100% { transform: translateY(0); opacity: 1; }
-        }
-
-        /* Mobile Adjustments */
-        @media (max-width: 480px) {
-            body { padding: 10px; }
-            .game-area { gap: 1vw; padding: 1.5vw; border-radius: 12px; }
-            .column { padding: 4px; gap: 4px; border-radius: 12px; }
-            .score { font-size: 0.75rem; height: 20px; }
-            h1 { font-size: 1.3rem; }
-            .flex-row { flex-direction: column; align-items: flex-start; }
-            .toggles-group { width: 100%; justify-content: space-between; }
-            .player-toggle { width: 100%; }
-        }
+      }
     </style>
-</head>
-<body class="hide-seq">
+  </head>
+  <body class="hide-seq">
+    <div class="custom-cursor" id="customCursor"></div>
 
-<div class="container">
-    <header>
+    <div class="container">
+      <header>
         <h1>Connect 4 Solver</h1>
         <select id="themeSelect" onchange="changeTheme(this.value)">
-            <option value="dark">Dark Theme</option>
-            <option value="light">Light Theme</option>
-            <option value="ocean">Ocean Theme</option>
-            <option value="synthwave">Synthwave</option>
+          <option value="dark">Dark Theme</option>
+          <option value="light">Light Theme</option>
+          <option value="ocean">Ocean Theme</option>
+          <option value="synthwave">Synthwave</option>
         </select>
-    </header>
+      </header>
 
-    <div class="settings-panel">
+      <div class="settings-panel">
         <div class="flex-row">
-            <span style="font-size:0.9rem; color:var(--muted)">Play As:</span>
-            <div class="player-toggle">
-                <button id="btnP1" class="active" onclick="setPlayer(1)">Player 1 (Red)</button>
-                <button id="btnP2" onclick="setPlayer(2)">Player 2 (Yellow)</button>
-            </div>
+          <span style="font-size: 0.9rem; color: var(--muted)">Play As:</span>
+          <div class="player-toggle">
+            <button id="btnP1" class="active" onclick="setPlayer(1)">
+              Player 1 (Red)
+            </button>
+            <button id="btnP2" onclick="setPlayer(2)">Player 2 (Yellow)</button>
+          </div>
         </div>
         <div class="flex-row">
-            <div class="toggles-group">
-                <label class="switch-container">
-                    <input type="checkbox" id="toggleScores" checked onchange="toggleUI()">
-                    <div class="switch"></div>
-                    Scores
-                </label>
-                <label class="switch-container">
-                    <input type="checkbox" id="toggleSeq" onchange="toggleUI()">
-                    <div class="switch"></div>
-                    Sequence
-                </label>
-            </div>
+          <div class="toggles-group">
+            <label class="switch-container">
+              <input
+                type="checkbox"
+                id="toggleScores"
+                checked
+                onchange="toggleUI()"
+              />
+              <div class="switch"></div>
+              Scores
+            </label>
+            <label class="switch-container">
+              <input type="checkbox" id="toggleSeq" onchange="toggleUI()" />
+              <div class="switch"></div>
+              Sequence
+            </label>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <div class="status-bar">
+      <div class="status-bar">
         <div class="turn-indicator">
-            <div class="turn-dot" id="turnDot"></div>
-            <span id="turnText">Your move (Player 1)</span>
+          <div class="turn-dot" id="turnDot"></div>
+          <span id="turnText">Your move (Player 1)</span>
         </div>
         <div class="move-counter">Move: <span id="moveCount">1</span></div>
-    </div>
+      </div>
 
-    <div class="game-area" id="gameArea">
+      <div class="game-area" id="gameArea">
         <!-- Generated by JS -->
-    </div>
+      </div>
 
-    <div class="sequence-box" id="sequenceBox">
+      <div class="sequence-box" id="sequenceBox">
         History: <span id="sequenceText">None</span>
+      </div>
+
+      <div class="bottom-controls">
+        <button
+          onclick="undoMove()"
+          class="large-btn btn-undo"
+          id="btnUndo"
+          disabled
+        >
+          Undo Move
+        </button>
+        <button onclick="resetGame()" class="large-btn btn-reset">
+          Reset Game
+        </button>
+      </div>
     </div>
 
-    <div class="bottom-controls">
-        <button onclick="undoMove()" class="large-btn btn-undo" id="btnUndo" disabled>Undo Move</button>
-        <button onclick="resetGame()" class="large-btn btn-reset">Reset Game</button>
-    </div>
-</div>
+    <script>
+      const COLS = 7;
+      const ROWS = 6;
+      let boardState = Array.from({ length: COLS }, () => []);
+      let moves = "";
+      let currentTurn = 1;
+      let userPlayer = 1; // 1 or 2
+      let gameOver = false;
 
-<script>
-    const COLS = 7;
-    const ROWS = 6;
-    let boardState = Array.from({ length: COLS }, () => []);
-    let moves = ""; 
-    let currentTurn = 1;
-    let userPlayer = 1; // 1 or 2
-    let gameOver = false;
-
-    // Boot
-    window.onload = () => {
+      // Boot
+      window.onload = () => {
         initBoard();
         toggleUI(); // sync body classes with default toggle state
-    };
+        initCustomCursor();
+      };
 
-    function initBoard() {
-        const gameArea = document.getElementById('gameArea');
-        gameArea.innerHTML = '';
+      function initCustomCursor() {
+        const cursor = document.getElementById("customCursor");
+        document.addEventListener("mousemove", (e) => {
+          cursor.style.left = e.clientX + "px";
+          cursor.style.top = e.clientY + "px";
+        });
+
+        // Hide custom cursor completely when moving anywhere over the game area (including between columns)
+        const gameArea = document.getElementById("gameArea");
+        gameArea.addEventListener("mouseenter", () =>
+          cursor.classList.add("hidden"),
+        );
+        gameArea.addEventListener("mouseleave", () =>
+          cursor.classList.remove("hidden"),
+        );
+
+        // Button hover animations
+        const buttons = document.querySelectorAll(
+          "button, select, .switch-container",
+        );
+        buttons.forEach((btn) => {
+          btn.addEventListener("mouseenter", () =>
+            cursor.classList.add("hovering"),
+          );
+          btn.addEventListener("mouseleave", () =>
+            cursor.classList.remove("hovering"),
+          );
+        });
+      }
+
+      function initBoard() {
+        const gameArea = document.getElementById("gameArea");
+        gameArea.innerHTML = "";
 
         for (let c = 0; c < COLS; c++) {
-            const colWrapper = document.createElement('div');
-            colWrapper.className = 'col-wrapper';
-            colWrapper.onclick = () => playMove(c);
-            colWrapper.onmouseenter = () => showGhost(c);
-            colWrapper.onmouseleave = () => hideGhost(c);
+          const colWrapper = document.createElement("div");
+          colWrapper.className = "col-wrapper";
+          colWrapper.onclick = () => playMove(c);
+          colWrapper.onmouseenter = () => showGhost(c);
+          colWrapper.onmouseleave = () => hideGhost(c);
 
-            const scoreDiv = document.createElement('div');
-            scoreDiv.className = 'score';
-            scoreDiv.id = `score-${c}`;
-            scoreDiv.innerText = '-';
-            colWrapper.appendChild(scoreDiv);
+          const scoreDiv = document.createElement("div");
+          scoreDiv.className = "score";
+          scoreDiv.id = `score-${c}`;
+          scoreDiv.innerText = "-";
+          colWrapper.appendChild(scoreDiv);
 
-            const column = document.createElement('div');
-            column.className = 'column';
-            column.id = `column-${c}`;
+          const column = document.createElement("div");
+          column.className = "column";
+          column.id = `column-${c}`;
 
-            for (let r = 0; r < ROWS; r++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.id = `cell-${c}-${r}`;
-                column.appendChild(cell);
-            }
+          for (let r = 0; r < ROWS; r++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            cell.id = `cell-${c}-${r}`;
+            column.appendChild(cell);
+          }
 
-            colWrapper.appendChild(column);
-            gameArea.appendChild(colWrapper);
+          colWrapper.appendChild(column);
+          gameArea.appendChild(colWrapper);
         }
-        
+
         updateUI();
         fetchEvaluation();
-    }
+      }
 
-    function setPlayer(p) {
+      function setPlayer(p) {
         userPlayer = p;
-        document.getElementById('btnP1').classList.toggle('active', p === 1);
-        document.getElementById('btnP2').classList.toggle('active', p === 2);
+        document.getElementById("btnP1").classList.toggle("active", p === 1);
+        document.getElementById("btnP2").classList.toggle("active", p === 2);
         updateUI();
         fetchEvaluation(); // Re-evaluate so recommendations hide/show immediately
-    }
+      }
 
-    function toggleUI() {
-        const showScores = document.getElementById('toggleScores').checked;
-        const showSeq = document.getElementById('toggleSeq').checked;
-        document.body.classList.toggle('hide-scores', !showScores);
-        document.body.classList.toggle('hide-seq', !showSeq);
-    }
+      function toggleUI() {
+        const showScores = document.getElementById("toggleScores").checked;
+        const showSeq = document.getElementById("toggleSeq").checked;
+        document.body.classList.toggle("hide-scores", !showScores);
+        document.body.classList.toggle("hide-seq", !showSeq);
+      }
 
-    function checkWinCondition() {
-        const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+      function checkWinCondition() {
+        const directions = [
+          [0, 1],
+          [1, 0],
+          [1, 1],
+          [1, -1],
+        ];
         for (let c = 0; c < COLS; c++) {
-            for (let r = 0; r < boardState[c].length; r++) {
-                const player = boardState[c][r];
-                for (let [dx, dy] of directions) {
-                    let count = 1;
-                    let winningCells = [[c, r]];
-                    for (let i = 1; i < 4; i++) {
-                        const nc = c + dx * i;
-                        const nr = r + dy * i;
-                        if (nc >= 0 && nc < COLS && nr >= 0 && nr < boardState[nc].length && boardState[nc][nr] === player) {
-                            count++;
-                            winningCells.push([nc, nr]);
-                        } else {
-                            break;
-                        }
-                    }
-                    if (count === 4) return { player, cells: winningCells };
+          for (let r = 0; r < boardState[c].length; r++) {
+            const player = boardState[c][r];
+            for (let [dx, dy] of directions) {
+              let count = 1;
+              let winningCells = [[c, r]];
+              for (let i = 1; i < 4; i++) {
+                const nc = c + dx * i;
+                const nr = r + dy * i;
+                if (
+                  nc >= 0 &&
+                  nc < COLS &&
+                  nr >= 0 &&
+                  nr < boardState[nc].length &&
+                  boardState[nc][nr] === player
+                ) {
+                  count++;
+                  winningCells.push([nc, nr]);
+                } else {
+                  break;
                 }
+              }
+              if (count === 4) return { player, cells: winningCells };
             }
+          }
         }
         return null;
-    }
+      }
 
-    function playMove(col) {
+      function playMove(col) {
         if (gameOver || boardState[col].length >= ROWS) return;
 
         boardState[col].push(currentTurn);
@@ -600,11 +962,11 @@
         fetchEvaluation();
         hideGhost(col);
         if (!gameOver) showGhost(col);
-    }
+      }
 
-    function undoMove() {
+      function undoMove() {
         if (moves.length === 0) return;
-        
+
         const lastColIndex = parseInt(moves.slice(-1)) - 1;
         boardState[lastColIndex].pop();
         moves = moves.slice(0, -1);
@@ -613,202 +975,219 @@
 
         updateUI();
         fetchEvaluation();
-    }
+      }
 
-    function resetGame() {
+      function resetGame() {
         boardState = Array.from({ length: COLS }, () => []);
         moves = "";
         currentTurn = 1;
         gameOver = false;
         updateUI();
         fetchEvaluation();
-    }
+      }
 
-    function updateUI() {
+      function updateUI() {
         const winData = checkWinCondition();
         gameOver = !!winData || moves.length === COLS * ROWS;
 
         // Update Cells
         for (let c = 0; c < COLS; c++) {
-            for (let r = 0; r < ROWS; r++) {
-                const cell = document.getElementById(`cell-${c}-${r}`);
-                
-                let newClass = 'cell';
-                if (cell.classList.contains('recommended-cell') && !gameOver) newClass += ' recommended-cell';
-                
-                if (r < boardState[c].length) {
-                    newClass += boardState[c][r] === 1 ? ' p1' : ' p2';
-                } else if (cell.classList.contains('ghost-p1') && !gameOver) {
-                    newClass += ' ghost-p1';
-                } else if (cell.classList.contains('ghost-p2') && !gameOver) {
-                    newClass += ' ghost-p2';
-                }
+          for (let r = 0; r < ROWS; r++) {
+            const cell = document.getElementById(`cell-${c}-${r}`);
 
-                // Add winning glow
-                if (winData && winData.cells.some(([wc, wr]) => wc === c && wr === r)) {
-                    newClass += ' winning-cell';
-                }
-                
-                if (cell.className !== newClass) {
-                    cell.className = newClass;
-                }
+            let newClass = "cell";
+            if (cell.classList.contains("recommended-cell") && !gameOver)
+              newClass += " recommended-cell";
+
+            if (r < boardState[c].length) {
+              newClass += boardState[c][r] === 1 ? " p1" : " p2";
+            } else if (cell.classList.contains("ghost-p1") && !gameOver) {
+              newClass += " ghost-p1";
+            } else if (cell.classList.contains("ghost-p2") && !gameOver) {
+              newClass += " ghost-p2";
             }
+
+            // Add winning glow
+            if (
+              winData &&
+              winData.cells.some(([wc, wr]) => wc === c && wr === r)
+            ) {
+              newClass += " winning-cell";
+            }
+
+            if (cell.className !== newClass) {
+              cell.className = newClass;
+            }
+          }
         }
 
         // Status bar & Turn text
-        const turnDot = document.getElementById('turnDot');
-        const turnText = document.getElementById('turnText');
-        
-        turnDot.style.background = currentTurn === 1 ? 'var(--p1)' : 'var(--p2)';
-        turnDot.style.boxShadow = `0 0 10px ${currentTurn === 1 ? 'var(--p1)' : 'var(--p2)'}`;
-        
+        const turnDot = document.getElementById("turnDot");
+        const turnText = document.getElementById("turnText");
+
+        turnDot.style.background =
+          currentTurn === 1 ? "var(--p1)" : "var(--p2)";
+        turnDot.style.boxShadow = `0 0 10px ${currentTurn === 1 ? "var(--p1)" : "var(--p2)"}`;
+
         if (winData) {
-            let pColor = winData.player === 1 ? "Red" : "Yellow";
-            turnText.innerText = `Player ${winData.player} (${pColor}) Wins!`;
-            turnText.style.color = winData.player === 1 ? "var(--p1)" : "var(--p2)";
+          let pColor = winData.player === 1 ? "Red" : "Yellow";
+          turnText.innerText = `Player ${winData.player} (${pColor}) Wins!`;
+          turnText.style.color =
+            winData.player === 1 ? "var(--p1)" : "var(--p2)";
         } else if (moves.length === COLS * ROWS) {
-            turnText.innerText = "Game Drawn!";
-            turnText.style.color = "var(--text)";
+          turnText.innerText = "Game Drawn!";
+          turnText.style.color = "var(--text)";
         } else {
-            let pColor = currentTurn === 1 ? "Red" : "Yellow";
-            if (currentTurn === userPlayer) {
-                turnText.innerText = `Your move (${pColor})`;
-                turnText.style.color = "var(--text)";
-            } else {
-                turnText.innerText = `Opponent's move (${pColor})`;
-                turnText.style.color = "var(--muted)";
-            }
+          let pColor = currentTurn === 1 ? "Red" : "Yellow";
+          if (currentTurn === userPlayer) {
+            turnText.innerText = `Your move (${pColor})`;
+            turnText.style.color = "var(--text)";
+          } else {
+            turnText.innerText = `Opponent's move (${pColor})`;
+            turnText.style.color = "var(--muted)";
+          }
         }
 
-        document.getElementById('moveCount').innerText = moves.length + 1;
-        document.getElementById('sequenceText').innerText = moves || "None";
-        document.getElementById('btnUndo').disabled = moves.length === 0;
-    }
+        document.getElementById("moveCount").innerText = moves.length + 1;
+        document.getElementById("sequenceText").innerText = moves || "None";
+        document.getElementById("btnUndo").disabled = moves.length === 0;
+      }
 
-    function showGhost(col) {
+      function showGhost(col) {
         if (gameOver) return;
         const rowIdx = boardState[col].length;
         if (rowIdx >= ROWS) return;
         const cell = document.getElementById(`cell-${col}-${rowIdx}`);
-        if (cell) cell.classList.add(currentTurn === 1 ? 'ghost-p1' : 'ghost-p2');
-    }
+        if (cell)
+          cell.classList.add(currentTurn === 1 ? "ghost-p1" : "ghost-p2");
+      }
 
-    function hideGhost(col) {
+      function hideGhost(col) {
         for (let r = 0; r < ROWS; r++) {
-            const cell = document.getElementById(`cell-${col}-${r}`);
-            if (cell) cell.classList.remove('ghost-p1', 'ghost-p2');
+          const cell = document.getElementById(`cell-${col}-${r}`);
+          if (cell) cell.classList.remove("ghost-p1", "ghost-p2");
         }
-    }
+      }
 
-    async function fetchEvaluation() {
+      async function fetchEvaluation() {
         if (gameOver) {
-            // Clear loading and recommendations when game ends
-            for (let c = 0; c < COLS; c++) {
-                const scoreDiv = document.getElementById(`score-${c}`);
-                scoreDiv.innerText = '-';
-                scoreDiv.className = 'score';
-                document.getElementById(`column-${c}`).classList.remove('recommended');
-                for (let r = 0; r < ROWS; r++) {
-                    const cell = document.getElementById(`cell-${c}-${r}`);
-                    if(cell) cell.classList.remove('recommended-cell');
-                }
+          // Clear loading and recommendations when game ends
+          for (let c = 0; c < COLS; c++) {
+            const scoreDiv = document.getElementById(`score-${c}`);
+            scoreDiv.innerText = "-";
+            scoreDiv.className = "score";
+            document
+              .getElementById(`column-${c}`)
+              .classList.remove("recommended");
+            for (let r = 0; r < ROWS; r++) {
+              const cell = document.getElementById(`cell-${c}-${r}`);
+              if (cell) cell.classList.remove("recommended-cell");
             }
-            return;
+          }
+          return;
         }
 
         // Set loading state and clear recommendations unconditionally
         for (let c = 0; c < COLS; c++) {
-            const scoreDiv = document.getElementById(`score-${c}`);
-            scoreDiv.innerText = '...';
-            scoreDiv.className = 'score loading';
-            document.getElementById(`column-${c}`).classList.remove('recommended');
-            
-            for (let r = 0; r < ROWS; r++) {
-                const cell = document.getElementById(`cell-${c}-${r}`);
-                if(cell) cell.classList.remove('recommended-cell');
-            }
+          const scoreDiv = document.getElementById(`score-${c}`);
+          scoreDiv.innerText = "...";
+          scoreDiv.className = "score loading";
+          document
+            .getElementById(`column-${c}`)
+            .classList.remove("recommended");
+
+          for (let r = 0; r < ROWS; r++) {
+            const cell = document.getElementById(`cell-${c}-${r}`);
+            if (cell) cell.classList.remove("recommended-cell");
+          }
         }
 
         try {
-            if (moves.length === 0) {
-                renderScores([0, 0, 0, 0, 0, 0, 0]);
-                return;
-            }
+          if (moves.length === 0) {
+            renderScores([0, 0, 0, 0, 0, 0, 0]);
+            return;
+          }
 
-            const res = await fetch(`https://connect4.gamesolver.org/solve?pos=${moves}`);
-            const data = await res.json();
-            renderScores(data.score);
+          const res = await fetch(
+            `https://connect4.gamesolver.org/solve?pos=${moves}`,
+          );
+          const data = await res.json();
+          renderScores(data.score);
         } catch (err) {
-            console.error("Failed to fetch solver data:", err);
-            for (let c = 0; c < COLS; c++) {
-                const scoreDiv = document.getElementById(`score-${c}`);
-                scoreDiv.innerText = '?';
-                scoreDiv.className = 'score';
-            }
+          console.error("Failed to fetch solver data:", err);
+          for (let c = 0; c < COLS; c++) {
+            const scoreDiv = document.getElementById(`score-${c}`);
+            scoreDiv.innerText = "?";
+            scoreDiv.className = "score";
+          }
         }
-    }
+      }
 
-    function renderScores(scores) {
+      function renderScores(scores) {
         let maxScore = -Infinity;
 
         // Render top text scores always
         for (let c = 0; c < COLS; c++) {
-            const scoreDiv = document.getElementById(`score-${c}`);
-            const val = scores[c];
-            const isFull = boardState[c].length >= ROWS;
+          const scoreDiv = document.getElementById(`score-${c}`);
+          const val = scores[c];
+          const isFull = boardState[c].length >= ROWS;
 
-            if (isFull || val === 100) {
-                scoreDiv.innerText = '✕';
-                scoreDiv.className = 'score full';
+          if (isFull || val === 100) {
+            scoreDiv.innerText = "✕";
+            scoreDiv.className = "score full";
+          } else {
+            if (val > 0) {
+              scoreDiv.innerText = `+${val}`;
+              scoreDiv.className = "score good";
+            } else if (val < 0) {
+              scoreDiv.innerText = `${val}`;
+              scoreDiv.className = "score bad";
             } else {
-                if (val > 0) {
-                    scoreDiv.innerText = `+${val}`;
-                    scoreDiv.className = 'score good';
-                } else if (val < 0) {
-                    scoreDiv.innerText = `${val}`;
-                    scoreDiv.className = 'score bad';
-                } else {
-                    scoreDiv.innerText = '=';
-                    scoreDiv.className = 'score draw';
-                }
-
-                if (val > maxScore) {
-                    maxScore = val;
-                }
+              scoreDiv.innerText = "=";
+              scoreDiv.className = "score draw";
             }
+
+            if (val > maxScore) {
+              maxScore = val;
+            }
+          }
         }
 
         // Pass 2: Highlight ONLY if it is the user's turn
         if (maxScore !== -Infinity && currentTurn === userPlayer) {
-            // Priority order starting from the center outward
-            const centerPriority = [3, 2, 4, 1, 5, 0, 6]; 
-            
-            let bestCol = -1;
-            for (let c of centerPriority) {
-                if (scores[c] === maxScore && boardState[c].length < ROWS) {
-                    bestCol = c;
-                    break; // Only select ONE best move
-                }
-            }
+          // Priority order starting from the center outward
+          const centerPriority = [3, 2, 4, 1, 5, 0, 6];
 
-            if (bestCol !== -1) {
-                // Highlight the column
-                document.getElementById(`column-${bestCol}`).classList.add('recommended');
-                
-                // Add the hollow glowing piece to the target cell
-                const rowIdx = boardState[bestCol].length;
-                const targetCell = document.getElementById(`cell-${bestCol}-${rowIdx}`);
-                if (targetCell) {
-                    targetCell.classList.add('recommended-cell');
-                }
+          let bestCol = -1;
+          for (let c of centerPriority) {
+            if (scores[c] === maxScore && boardState[c].length < ROWS) {
+              bestCol = c;
+              break; // Only select ONE best move
             }
+          }
+
+          if (bestCol !== -1) {
+            // Highlight the column
+            document
+              .getElementById(`column-${bestCol}`)
+              .classList.add("recommended");
+
+            // Add the hollow glowing piece to the target cell
+            const rowIdx = boardState[bestCol].length;
+            const targetCell = document.getElementById(
+              `cell-${bestCol}-${rowIdx}`,
+            );
+            if (targetCell) {
+              targetCell.classList.add("recommended-cell");
+            }
+          }
         }
-    }
+      }
 
-    function changeTheme(themeName) {
-        document.documentElement.setAttribute('data-theme', themeName);
-        setTimeout(updateUI, 50); 
-    }
-</script>
-</body>
+      function changeTheme(themeName) {
+        document.documentElement.setAttribute("data-theme", themeName);
+        setTimeout(updateUI, 50);
+      }
+    </script>
+  </body>
 </html>
