@@ -1,10 +1,10 @@
 # Connect 4 Solver
 
 An interactive, responsive Connect 4 game with a built-in perfect solver, built in a single HTML file using HTML, CSS, and JavaScript.
-Working Website: mdargahwala.tech/cfour_solver.html
 
 ## Features
 
+- **Working Website**: [Working Website](mdargahwala.site/cfour_solver.html)
 - **Perfect Solver Integration**: Connects to the [Connect 4 Solver API](https://connect4.gamesolver.org/) to evaluate the board state.
 - **Move Recommendations**: Highlights the best column to drop your piece on your turn.
 - **Score Evaluation**: Displays the evaluation score for each column (`+` for winning moves, `-` for losing moves, `=` for drawing moves, and `✕` for full columns).
@@ -22,6 +22,7 @@ Simply open the `cfour_solver.html` file in any modern web browser to start play
 ## How the Solver Works
 
 The UI queries the solver API with the current sequence of moves (e.g., `123123`) and receives back an array of scores corresponding to each column. The UI then translates this into actionable advice:
+
 - **Positive numbers** indicate a forced win in that many moves.
 - **Negative numbers** indicate a forced loss if that column is played.
 - **Zero** indicates a draw with perfect play.

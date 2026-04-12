@@ -91,12 +91,51 @@
         --danger-hover: #9f1239;
       }
 
+      :root[data-theme="forest"] {
+        --bg: #0f1c16;
+        --surface: #1a2e24;
+        --border: #2d4a3e;
+        --text: #e2f0e9;
+        --muted: #7da592;
+        --p1: #f0abfc;
+        --p2: #fef08a;
+        --board: #064e3b;
+        --cell-bg: #0f1c16;
+        --good: #a3e635;
+        --bad: #f43f5e;
+        --draw: #facc15;
+        --full: #3f6250;
+        --primary: #10b981;
+        --primary-hover: #059669;
+        --danger: #be123c;
+        --danger-hover: #9f1239;
+      }
+
+      :root[data-theme="cyberpunk"] {
+        --bg: #12041b;
+        --surface: #fce300;
+        --border: #ff003c;
+        --text: #12041b;
+        --muted: #5e4785;
+        --p1: #00f0ff;
+        --p2: #ff003c;
+        --board: #12041b;
+        --cell-bg: #fce300;
+        --good: #00f0ff;
+        --bad: #5e4785;
+        --draw: #ff003c;
+        --full: #ff003c;
+        --primary: #00f0ff;
+        --primary-hover: #0088ff;
+        --danger: #ff003c;
+        --danger-hover: #990024;
+      }
+
       * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
         -webkit-tap-highlight-color: transparent;
-        cursor: none !important; /* Hide native cursor everywhere */
       }
 
       /* Custom Cursor */
@@ -104,11 +143,14 @@
         position: fixed;
         top: 0;
         left: 0;
-        width: 16px;
-        height: 16px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.8);
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        background: transparent;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        box-shadow:
+          0 0 10px rgba(255, 255, 255, 0.5),
+          inset 0 0 10px rgba(255, 255, 255, 0.3);
         pointer-events: none;
         z-index: 9999;
         transform: translate(-50%, -50%);
@@ -116,26 +158,85 @@
           width 0.2s,
           height 0.2s,
           background 0.2s,
+          border-color 0.2s,
+          box-shadow 0.2s,
           opacity 0.2s;
         mix-blend-mode: difference;
       }
 
       .custom-cursor.hovering {
-        width: 24px;
-        height: 24px;
-        background: var(--good);
-        box-shadow: 0 0 15px var(--good);
+        width: 48px;
+        height: 48px;
+        background: rgba(0, 255, 136, 0.2);
+        border-color: var(--good);
+        box-shadow:
+          0 0 20px var(--good),
+          inset 0 0 15px var(--good);
       }
 
       .custom-cursor.hidden {
         opacity: 0 !important;
       }
 
-      /* Hide default cursor on desktop when hovering a column */
+      /* Hide default cursor on desktop when hovering a column 
       @media (pointer: fine) {
         .col-wrapper {
           cursor: none;
         }
+      }
+      */
+
+      .pointer {
+        cursor: pointer !important;
+      }
+
+      .main-wrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 20px;
+        width: 100%;
+        max-width: 900px;
+      }
+
+      .moves-panel {
+        display: none;
+        flex-direction: column;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 15px;
+        width: 250px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      body.show-moves .moves-panel {
+        display: flex;
+      }
+
+      .move-item {
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+        color: var(--muted);
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+      }
+
+      .move-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--border);
+      }
+
+      .move-item.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
       }
 
       body {
@@ -355,18 +456,24 @@
         position: relative;
         border-radius: 20px;
         transition:
-          transform 0.2s cubic-bezier(0.25, 1, 0.5, 1),
-          background 0.2s;
+          transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+          background 0.3s,
+          box-shadow 0.3s;
+        cursor: pointer;
       }
 
       @media (hover: hover) {
         .col-wrapper:hover {
-          background: rgba(255, 255, 255, 0.05);
-          transform: translateY(-4px);
+          background: rgba(255, 255, 255, 0.1);
+          transform: translateY(-6px);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .col-wrapper:hover .column {
+          border-color: rgba(255, 255, 255, 0.2);
         }
       }
       .col-wrapper:active {
-        transform: translateY(2px) scale(0.98);
+        transform: translateY(2px) scale(0.96);
       }
 
       /* Recommendation Highlight */
@@ -439,9 +546,12 @@
         background: var(--cell-bg);
         border-radius: 50%;
         transition:
-          background 0.3s,
-          transform 0.2s;
-        box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.2);
+          background 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+          transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+          box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        box-shadow:
+          inset 0 4px 6px rgba(0, 0, 0, 0.4),
+          0 2px 4px rgba(0, 0, 0, 0.1);
         position: relative;
         overflow: hidden;
       }
@@ -449,17 +559,19 @@
       .cell.p1 {
         background: var(--p1);
         box-shadow:
-          inset 0 -4px 6px rgba(0, 0, 0, 0.2),
-          0 0 12px rgba(0, 0, 0, 0.3);
-        animation: dropPiece 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+          inset 0 -6px 12px rgba(0, 0, 0, 0.4),
+          inset 0 4px 6px rgba(255, 255, 255, 0.2),
+          0 4px 15px rgba(0, 0, 0, 0.5);
+        animation: dropPiece 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
 
       .cell.p2 {
         background: var(--p2);
         box-shadow:
-          inset 0 -4px 6px rgba(0, 0, 0, 0.2),
-          0 0 12px rgba(0, 0, 0, 0.3);
-        animation: dropPiece 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+          inset 0 -6px 12px rgba(0, 0, 0, 0.4),
+          inset 0 4px 6px rgba(255, 255, 255, 0.2),
+          0 4px 15px rgba(0, 0, 0, 0.5);
+        animation: dropPiece 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
 
       .cell.ghost-p1 {
@@ -523,6 +635,81 @@
         gap: 15px;
         margin-top: 5px;
         padding-bottom: 20px;
+      }
+
+      .history-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+        align-items: center;
+      }
+
+      .history-controls select {
+        flex: 1;
+      }
+
+      /* Modal CSS */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+
+      .modal-box {
+        background: var(--surface);
+        padding: 30px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-box h3 {
+        margin-bottom: 15px;
+        color: var(--text);
+      }
+
+      .modal-box .modal-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+      }
+
+      .modal-box button {
+        flex: 1;
+        padding: 12px;
+        border-radius: 8px;
+        border: none;
+        font-family: inherit;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .modal-btn-yes {
+        background: var(--danger);
+        color: white;
+      }
+      .modal-btn-yes:hover {
+        background: var(--danger-hover);
+      }
+
+      .modal-btn-no {
+        background: var(--muted);
+        color: white;
+      }
+      .modal-btn-no:hover {
+        background: #44445a;
       }
 
       .large-btn {
@@ -707,6 +894,17 @@
       }
 
       /* Mobile Adjustments */
+      @media (max-width: 800px) {
+        .main-wrapper {
+          flex-direction: column;
+          align-items: center;
+        }
+        .moves-panel {
+          width: 100%;
+          max-width: 600px;
+        }
+      }
+
       @media (max-width: 480px) {
         body {
           padding: 10px;
@@ -745,76 +943,151 @@
   <body class="hide-seq">
     <div class="custom-cursor" id="customCursor"></div>
 
-    <div class="container">
-      <header>
-        <h1>Connect 4 Solver</h1>
-        <select id="themeSelect" onchange="changeTheme(this.value)">
-          <option value="dark">Dark Theme</option>
-          <option value="light">Light Theme</option>
-          <option value="ocean">Ocean Theme</option>
-          <option value="synthwave">Synthwave</option>
-        </select>
-      </header>
+    <div class="main-wrapper">
+      <div class="container">
+        <header>
+          <h1>Connect 4 Solver</h1>
+          <select
+            id="themeSelect"
+            class="pointer"
+            onchange="changeTheme(this.value)"
+          >
+            <option value="dark">Dark Theme</option>
+            <option value="light">Light Theme</option>
+            <option value="ocean">Ocean Theme</option>
+            <option value="synthwave">Synthwave</option>
+            <option value="forest">Forest</option>
+            <option value="cyberpunk">Cyberpunk</option>
+          </select>
+        </header>
 
-      <div class="settings-panel">
-        <div class="flex-row">
-          <span style="font-size: 0.9rem; color: var(--muted)">Play As:</span>
-          <div class="player-toggle">
-            <button id="btnP1" class="active" onclick="setPlayer(1)">
-              Player 1 (Red)
-            </button>
-            <button id="btnP2" onclick="setPlayer(2)">Player 2 (Yellow)</button>
+        <div class="settings-panel">
+          <div class="flex-row">
+            <span style="font-size: 0.9rem; color: var(--muted)">Play As:</span>
+            <div class="player-toggle pointer">
+              <button id="btnP1" class="active pointer" onclick="setPlayer(1)">
+                Player 1 (Red)
+              </button>
+              <button id="btnP2" class="pointer" onclick="setPlayer(2)">
+                Player 2 (Yellow)
+              </button>
+            </div>
+          </div>
+          <div class="flex-row">
+            <div class="toggles-group">
+              <label class="switch-container pointer">
+                <input
+                  type="checkbox"
+                  id="toggleScores"
+                  class="pointer"
+                  checked
+                  onchange="toggleUI()"
+                />
+                <div class="switch pointer"></div>
+                Scores
+              </label>
+              <label class="switch-container pointer">
+                <input
+                  type="checkbox"
+                  id="toggleSeq"
+                  class="pointer"
+                  onchange="toggleUI()"
+                />
+                <div class="switch pointer"></div>
+                Sequence
+              </label>
+              <label class="switch-container pointer">
+                <input type="checkbox" id="toggleSafeMode" class="pointer" />
+                <div class="switch pointer"></div>
+                Safe Mode
+              </label>
+              <label class="switch-container pointer">
+                <input
+                  type="checkbox"
+                  id="toggleMoves"
+                  class="pointer"
+                  onchange="toggleMovesPanel()"
+                />
+                <div class="switch pointer"></div>
+                Moves
+              </label>
+            </div>
           </div>
         </div>
-        <div class="flex-row">
-          <div class="toggles-group">
-            <label class="switch-container">
-              <input
-                type="checkbox"
-                id="toggleScores"
-                checked
-                onchange="toggleUI()"
-              />
-              <div class="switch"></div>
-              Scores
-            </label>
-            <label class="switch-container">
-              <input type="checkbox" id="toggleSeq" onchange="toggleUI()" />
-              <div class="switch"></div>
-              Sequence
-            </label>
+
+        <div class="status-bar">
+          <div class="turn-indicator">
+            <div class="turn-dot" id="turnDot"></div>
+            <span id="turnText">Your move (Player 1)</span>
           </div>
+          <div class="move-counter">Move: <span id="moveCount">1</span></div>
+        </div>
+
+        <div class="game-area" id="gameArea">
+          <!-- Generated by JS -->
+        </div>
+
+        <div class="sequence-box" id="sequenceBox">
+          History: <span id="sequenceText">None</span>
+        </div>
+
+        <div class="history-controls">
+          <label for="historySelect">Recent Games:</label>
+          <select
+            id="historySelect"
+            class="pointer"
+            onchange="loadGameFromHistory()"
+          >
+            <option value="-1">-- Load a previous game --</option>
+          </select>
+        </div>
+
+        <div class="bottom-controls">
+          <button
+            onclick="undoMove()"
+            class="large-btn btn-undo pointer"
+            id="btnUndo"
+            disabled
+          >
+            Undo Move
+          </button>
+          <button
+            onclick="redoMove()"
+            class="large-btn btn-undo pointer"
+            id="btnRedo"
+            style="display: none"
+          >
+            Redo Move
+          </button>
+          <button onclick="requestReset()" class="large-btn btn-reset pointer">
+            Reset Game
+          </button>
         </div>
       </div>
 
-      <div class="status-bar">
-        <div class="turn-indicator">
-          <div class="turn-dot" id="turnDot"></div>
-          <span id="turnText">Your move (Player 1)</span>
+      <div class="moves-panel" id="movesPanel">
+        <h3 style="margin-bottom: 10px; font-size: 1.1rem">Moves History</h3>
+        <div id="movesList"></div>
+      </div>
+    </div>
+
+    <!-- Custom Modal Overlay -->
+    <div id="resetModal" class="modal-overlay">
+      <div class="modal-box">
+        <h3>Reset Game?</h3>
+        <p>This match will be saved to Recent Games.</p>
+        <div class="modal-buttons">
+          <button class="modal-btn-no pointer" onclick="closeResetModal()">
+            Cancel
+          </button>
+          <button
+            id="confirmResetBtn"
+            class="modal-btn-yes pointer"
+            onclick="confirmReset()"
+          >
+            Yes, Reset
+          </button>
         </div>
-        <div class="move-counter">Move: <span id="moveCount">1</span></div>
-      </div>
-
-      <div class="game-area" id="gameArea">
-        <!-- Generated by JS -->
-      </div>
-
-      <div class="sequence-box" id="sequenceBox">
-        History: <span id="sequenceText">None</span>
-      </div>
-
-      <div class="bottom-controls">
-        <button
-          onclick="undoMove()"
-          class="large-btn btn-undo"
-          id="btnUndo"
-          disabled
-        >
-          Undo Move
-        </button>
-        <button onclick="resetGame()" class="large-btn btn-reset">
-          Reset Game
-        </button>
       </div>
     </div>
 
@@ -823,14 +1096,18 @@
       const ROWS = 6;
       let boardState = Array.from({ length: COLS }, () => []);
       let moves = "";
+      let redoMoves = "";
       let currentTurn = 1;
       let userPlayer = 1; // 1 or 2
       let gameOver = false;
+      let gameHistoryList = []; // stores { id, moves }
+      let resetTimer = null;
 
       // Boot
       window.onload = () => {
         initBoard();
         toggleUI(); // sync body classes with default toggle state
+        toggleMovesPanel();
         initCustomCursor();
       };
 
@@ -870,7 +1147,7 @@
 
         for (let c = 0; c < COLS; c++) {
           const colWrapper = document.createElement("div");
-          colWrapper.className = "col-wrapper";
+          colWrapper.className = "col-wrapper pointer";
           colWrapper.onclick = () => playMove(c);
           colWrapper.onmouseenter = () => showGhost(c);
           colWrapper.onmouseleave = () => hideGhost(c);
@@ -956,6 +1233,7 @@
 
         boardState[col].push(currentTurn);
         moves += (col + 1).toString();
+        redoMoves = ""; // clear redo path on new move
         currentTurn = currentTurn === 1 ? 2 : 1;
 
         updateUI();
@@ -969,6 +1247,7 @@
 
         const lastColIndex = parseInt(moves.slice(-1)) - 1;
         boardState[lastColIndex].pop();
+        redoMoves += moves.slice(-1);
         moves = moves.slice(0, -1);
         currentTurn = currentTurn === 1 ? 2 : 1;
         gameOver = false;
@@ -977,13 +1256,119 @@
         fetchEvaluation();
       }
 
-      function resetGame() {
-        boardState = Array.from({ length: COLS }, () => []);
-        moves = "";
-        currentTurn = 1;
-        gameOver = false;
+      function redoMove() {
+        if (redoMoves.length === 0) return;
+
+        const nextColIndex = parseInt(redoMoves.slice(-1)) - 1;
+        boardState[nextColIndex].push(currentTurn);
+        moves += redoMoves.slice(-1);
+        redoMoves = redoMoves.slice(0, -1);
+        currentTurn = currentTurn === 1 ? 2 : 1;
+
         updateUI();
         fetchEvaluation();
+      }
+
+      function requestReset() {
+        if (moves.length === 0) return; // Nothing to reset
+        document.getElementById("resetModal").style.display = "flex";
+
+        const isSafeMode = document.getElementById("toggleSafeMode").checked;
+        const confirmBtn = document.getElementById("confirmResetBtn");
+
+        if (isSafeMode) {
+          confirmBtn.disabled = true;
+          let time = 3;
+          confirmBtn.innerText = `Yes, Reset (${time})`;
+          resetTimer = setInterval(() => {
+            time--;
+            if (time <= 0) {
+              clearInterval(resetTimer);
+              confirmBtn.disabled = false;
+              confirmBtn.innerText = "Yes, Reset";
+            } else {
+              confirmBtn.innerText = `Yes, Reset (${time})`;
+            }
+          }, 1000);
+        } else {
+          confirmBtn.disabled = false;
+          confirmBtn.innerText = "Yes, Reset";
+        }
+      }
+
+      function closeResetModal() {
+        document.getElementById("resetModal").style.display = "none";
+        if (resetTimer) clearInterval(resetTimer);
+      }
+
+      function confirmReset() {
+        closeResetModal();
+
+        // Save current game if not empty
+        if (moves.length > 0) {
+          gameHistoryList.push({
+            id: Date.now(),
+            movesStr: moves,
+            display: `Game with ${moves.length} moves (${new Date().toLocaleTimeString()})`,
+          });
+          updateHistoryDropdown();
+        }
+
+        performReset();
+      }
+
+      function performReset() {
+        boardState = Array.from({ length: COLS }, () => []);
+        moves = "";
+        redoMoves = "";
+        currentTurn = 1;
+        gameOver = false;
+        document.getElementById("historySelect").value = "-1";
+        updateUI();
+        fetchEvaluation();
+      }
+
+      function loadGameFromHistory() {
+        const select = document.getElementById("historySelect");
+        const gameId = select.value;
+        if (gameId === "-1") return;
+
+        const game = gameHistoryList.find((g) => g.id == gameId);
+        if (game) {
+          // Perform clean silent load
+          boardState = Array.from({ length: COLS }, () => []);
+          moves = "";
+          redoMoves = "";
+          currentTurn = 1;
+          gameOver = false;
+
+          // Replay moves
+          for (let m of game.movesStr) {
+            const col = parseInt(m) - 1;
+            boardState[col].push(currentTurn);
+            moves += m;
+            currentTurn = currentTurn === 1 ? 2 : 1;
+          }
+
+          updateUI();
+          fetchEvaluation();
+        }
+      }
+
+      function updateHistoryDropdown() {
+        const select = document.getElementById("historySelect");
+        // Keep the placeholder options
+        select.innerHTML =
+          '<option value="-1">-- Load a previous game --</option>';
+        gameHistoryList
+          .slice()
+          .reverse()
+          .forEach((game) => {
+            const opt = document.createElement("option");
+            opt.value = game.id;
+            opt.innerText = game.display;
+            select.appendChild(opt);
+          });
       }
 
       function updateUI() {
@@ -1051,6 +1436,13 @@
         document.getElementById("moveCount").innerText = moves.length + 1;
         document.getElementById("sequenceText").innerText = moves || "None";
         document.getElementById("btnUndo").disabled = moves.length === 0;
+
+        const btnRedo = document.getElementById("btnRedo");
+        if (btnRedo) {
+          btnRedo.style.display = redoMoves.length > 0 ? "block" : "none";
+        }
+
+        updateMovesPanel();
       }
 
       function showGhost(col) {
@@ -1187,6 +1579,62 @@
       function changeTheme(themeName) {
         document.documentElement.setAttribute("data-theme", themeName);
         setTimeout(updateUI, 50);
+      }
+
+      function toggleMovesPanel() {
+        document.body.classList.toggle(
+          "show-moves",
+          document.getElementById("toggleMoves").checked,
+        );
+        updateMovesPanel();
+      }
+
+      function updateMovesPanel() {
+        const toggle = document.getElementById("toggleMoves");
+        if (!toggle || !toggle.checked) return;
+
+        const list = document.getElementById("movesList");
+        if (!list) return;
+        list.innerHTML = "";
+
+        const baseBtn = document.createElement("div");
+        baseBtn.className =
+          "move-item pointer" + (moves.length === 0 ? " active" : "");
+        baseBtn.innerText = "Start (Move 0)";
+        baseBtn.onclick = () => jumpToMove(0);
+        list.appendChild(baseBtn);
+
+        const allMoves = moves + redoMoves;
+        for (let i = 0; i < allMoves.length; i++) {
+          const btn = document.createElement("div");
+          let turnColor = i % 2 === 0 ? "Player 1" : "Player 2";
+          btn.className =
+            "move-item pointer" + (i + 1 === moves.length ? " active" : "");
+          btn.innerText = `Move ${i + 1}: Col ${allMoves[i]} (${turnColor})`;
+          btn.onclick = () => jumpToMove(i + 1);
+          list.appendChild(btn);
+        }
+      }
+
+      function jumpToMove(moveCount) {
+        const allMoves = moves + redoMoves;
+        if (moveCount === moves.length) return;
+
+        boardState = Array.from({ length: COLS }, () => []);
+        moves = "";
+        redoMoves = allMoves.slice(moveCount);
+        currentTurn = 1;
+        gameOver = false;
+
+        for (let i = 0; i < moveCount; i++) {
+          const col = parseInt(allMoves[i]) - 1;
+          boardState[col].push(currentTurn);
+          moves += allMoves[i];
+          currentTurn = currentTurn === 1 ? 2 : 1;
+        }
+
+        updateUI();
+        fetchEvaluation();
       }
     </script>
   </body>
