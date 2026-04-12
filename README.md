@@ -1,19 +1,22 @@
 # Connect 4 Solver
 
-An interactive, responsive Connect 4 game with a built-in perfect solver, built in a single HTML file using HTML, CSS, and JavaScript.
+An interactive Connect 4 game with a built-in perfect solver, built in a single HTML file using HTML, CSS, and JavaScript.
 
 ## Features
 
-- **Working Website**: [Working Website](mdargahwala.site/cfour_solver.html)
+- **Working Website**: [Working Website](https://mdargahwala.tech/cfour_solver.html)
 - **Perfect Solver Integration**: Connects to the [Connect 4 Solver API](https://connect4.gamesolver.org/) to evaluate the board state.
 - **Move Recommendations**: Highlights the best column to drop your piece on your turn.
 - **Score Evaluation**: Displays the evaluation score for each column (`+` for winning moves, `-` for losing moves, `=` for drawing moves, and `✕` for full columns).
-- **Multiple Themes**: Play in Dark, Light, Ocean, or Synthwave themes.
+- **Multiple Themes**: Play in Dark, Light, Ocean, Synthwave, Forest, or Cyberpunk themes.
 - **Player Selection**: Choose to play as Player 1 (Red) or Player 2 (Yellow).
-- **Custom Cursor Elements**: Features a sleek custom cursor with an interactive hover state on UI elements. The cursor automatically hides when navigating the game board to prevent flickering, relying instead on a neat magnetic "ghost piece" indicator.
+- **Desktop Cursor Effects**: Includes a custom cursor and hover interactions for pointer/fine-cursor devices.
+- **Touch-Friendly Input**: On mobile and touch surfaces, cursor effects and hover ghost indicators are disabled for cleaner gameplay.
+- **Mobile Options Menu**: Settings collapse into an Options menu on smaller screens to avoid overflow.
+- **Safe Reset Mode**: Optional reset confirmation timer applies during active play and is skipped once a game has ended.
 - **Beautiful Animations**: Dropping pieces, winning highlights, and button interactions are accompanied by smooth CSS animations.
 - **Game History & Controls**: Keep track of the move sequence, and easily Undo or Reset the game.
-- **Responsive Design**: Playable on both desktop and mobile devices.
+- **Responsive Design**: Optimized for desktop, tablet, and small phones.
 
 ## Usage
 

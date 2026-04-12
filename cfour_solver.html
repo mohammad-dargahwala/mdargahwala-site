@@ -190,6 +190,22 @@
         cursor: pointer !important;
       }
 
+      .mobile-options-btn {
+        display: none;
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-family: inherit;
+        font-size: 0.9rem;
+      }
+
+      .mobile-options-btn.active {
+        border-color: var(--primary);
+        box-shadow: 0 0 10px rgba(90, 103, 216, 0.25);
+      }
+
       .main-wrapper {
         display: flex;
         flex-direction: row;
@@ -905,10 +921,95 @@
         }
       }
 
+      @media (max-width: 768px) {
+        .container {
+          max-width: 100%;
+          min-width: 0;
+        }
+
+        header {
+          align-items: flex-start;
+        }
+
+        .mobile-options-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .settings-panel {
+          display: none;
+        }
+
+        body.mobile-menu-open .settings-panel {
+          display: flex;
+        }
+
+        .settings-panel {
+          width: 100%;
+          min-width: 0;
+        }
+
+        .toggles-group {
+          width: 100%;
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+
+        .switch-container {
+          min-width: 0;
+        }
+
+        .bottom-controls {
+          flex-wrap: wrap;
+        }
+
+        .bottom-controls .large-btn {
+          min-width: calc(50% - 8px);
+        }
+      }
+
       @media (max-width: 480px) {
         body {
           padding: 10px;
         }
+
+        .container {
+          gap: 12px;
+        }
+
+        header {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 8px;
+        }
+
+        #themeSelect,
+        .mobile-options-btn {
+          width: 100%;
+          max-width: 100%;
+          min-width: 0;
+        }
+
+        .settings-panel {
+          padding: 12px;
+        }
+
+        .status-bar {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+
+        .history-controls {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .history-controls select {
+          width: 100%;
+        }
+
         .game-area {
           gap: 1vw;
           padding: 1.5vw;
@@ -932,10 +1033,42 @@
         }
         .toggles-group {
           width: 100%;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 8px;
+        }
+
+        .switch-container {
+          width: 100%;
           justify-content: space-between;
+          font-size: 0.82rem;
         }
         .player-toggle {
           width: 100%;
+        }
+
+        .bottom-controls {
+          flex-direction: column;
+        }
+
+        .bottom-controls .large-btn {
+          width: 100%;
+          min-width: 100%;
+        }
+      }
+
+      @media (hover: none), (pointer: coarse) {
+        .custom-cursor {
+          display: none !important;
+        }
+
+        .pointer {
+          cursor: auto !important;
+        }
+
+        .cell.ghost-p1,
+        .cell.ghost-p2 {
+          display: none !important;
         }
       }
     </style>
@@ -947,6 +1080,16 @@
       <div class="container">
         <header>
           <h1>Connect 4 Solver</h1>
+          <button
+            id="mobileOptionsBtn"
+            class="mobile-options-btn pointer"
+            type="button"
+            onclick="toggleMobileMenu()"
+            aria-expanded="false"
+            aria-controls="settingsPanel"
+          >
+            Options
+          </button>
           <select
             id="themeSelect"
             class="pointer"
@@ -961,7 +1104,7 @@
           </select>
         </header>
 
-        <div class="settings-panel">
+        <div class="settings-panel" id="settingsPanel">
           <div class="flex-row">
             <span style="font-size: 0.9rem; color: var(--muted)">Play As:</span>
             <div class="player-toggle pointer">
@@ -1102,17 +1245,24 @@
       let gameOver = false;
       let gameHistoryList = []; // stores { id, moves }
       let resetTimer = null;
+      const isTouchDevice =
+        window.matchMedia("(hover: none), (pointer: coarse)").matches ||
+        "ontouchstart" in window;
 
       // Boot
       window.onload = () => {
         initBoard();
         toggleUI(); // sync body classes with default toggle state
         toggleMovesPanel();
-        initCustomCursor();
+        if (!isTouchDevice) {
+          initCustomCursor();
+        }
       };
 
       function initCustomCursor() {
         const cursor = document.getElementById("customCursor");
+        if (!cursor) return;
+
         document.addEventListener("mousemove", (e) => {
           cursor.style.left = e.clientX + "px";
           cursor.style.top = e.clientY + "px";
@@ -1141,6 +1291,28 @@
         });
       }
 
+      function toggleMobileMenu(forceOpen = null) {
+        const shouldOpen =
+          forceOpen === null
+            ? !document.body.classList.contains("mobile-menu-open")
+            : forceOpen;
+        document.body.classList.toggle("mobile-menu-open", shouldOpen);
+
+        const btn = document.getElementById("mobileOptionsBtn");
+        if (btn) {
+          btn.classList.toggle("active", shouldOpen);
+          btn.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+        }
+      }
+
+      function closeMobileMenuIfNeeded() {
+        if (window.innerWidth > 768) {
+          toggleMobileMenu(false);
+        }
+      }
+
+      window.addEventListener("resize", closeMobileMenuIfNeeded);
+
       function initBoard() {
         const gameArea = document.getElementById("gameArea");
         gameArea.innerHTML = "";
@@ -1149,8 +1321,10 @@
           const colWrapper = document.createElement("div");
           colWrapper.className = "col-wrapper pointer";
           colWrapper.onclick = () => playMove(c);
-          colWrapper.onmouseenter = () => showGhost(c);
-          colWrapper.onmouseleave = () => hideGhost(c);
+          if (!isTouchDevice) {
+            colWrapper.onmouseenter = () => showGhost(c);
+            colWrapper.onmouseleave = () => hideGhost(c);
+          }
 
           const scoreDiv = document.createElement("div");
           scoreDiv.className = "score";
@@ -1275,8 +1449,9 @@
 
         const isSafeMode = document.getElementById("toggleSafeMode").checked;
         const confirmBtn = document.getElementById("confirmResetBtn");
+        const shouldUseTimer = isSafeMode && !gameOver;
 
-        if (isSafeMode) {
+        if (shouldUseTimer) {
           confirmBtn.disabled = true;
           let time = 3;
           confirmBtn.innerText = `Yes, Reset (${time})`;
@@ -1446,7 +1621,7 @@
       }
 
       function showGhost(col) {
-        if (gameOver) return;
+        if (isTouchDevice || gameOver) return;
         const rowIdx = boardState[col].length;
         if (rowIdx >= ROWS) return;
         const cell = document.getElementById(`cell-${col}-${rowIdx}`);
