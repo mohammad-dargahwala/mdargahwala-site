@@ -1,38 +1,48 @@
 # Connect 4 Solver
 
-An interactive Connect 4 game with a built-in perfect solver, built in a single HTML file using HTML, CSS, and JavaScript.
+A Connect 4 board with move scores and a suggested move for the player you choose. The board and controls are written in one HTML file.
 
-## Features
+[Play online](https://mdargahwala.tech/cfour_solver.html)
 
-- **Working Website**: [Working Website](https://mdargahwala.tech/cfour_solver.html)
-- **Perfect Solver Integration**: Connects to the [Connect 4 Solver API](https://connect4.gamesolver.org/) to evaluate the board state.
-- **Move Recommendations**: Highlights the best column to drop your piece on your turn.
-- **Score Evaluation**: Displays the evaluation score for each column (`+` for winning moves, `-` for losing moves, `=` for drawing moves, and `✕` for full columns).
-- **Multiple Themes**: Play in Dark, Light, Ocean, Synthwave, Forest, or Cyberpunk themes.
-- **Player Selection**: Choose to play as Player 1 (Red) or Player 2 (Yellow).
-- **Desktop Cursor Effects**: Includes a custom cursor and hover interactions for pointer/fine-cursor devices.
-- **Touch-Friendly Input**: On mobile and touch surfaces, cursor effects and hover ghost indicators are disabled for cleaner gameplay.
-- **Mobile Options Menu**: Settings collapse into an Options menu on smaller screens to avoid overflow.
-- **Safe Reset Mode**: Optional reset confirmation timer applies during active play and is skipped once a game has ended.
-- **Beautiful Animations**: Dropping pieces, winning highlights, and button interactions are accompanied by smooth CSS animations.
-- **Game History & Controls**: Keep track of the move sequence, and easily Undo or Reset the game.
-- **Responsive Design**: Optimized for desktop, tablet, and small phones.
+## Playing
 
-## Usage
+Click a column to drop a piece. Choose Player 1 (red) or Player 2 (yellow) to control whose turns get a move recommendation. Both players' moves are entered manually; the app does not play an opponent's moves for you.
 
-Simply open the `cfour_solver.html` file in any modern web browser to start playing! No build step or installation required.
+You can undo and redo moves, review the move list, jump back to an earlier position, and restart the game. The interface also includes score and recommendation toggles, an optional reset confirmation, and six themes: Dark, Light, Ocean, Synthwave, Forest, and Cyberpunk.
 
-## How the Solver Works
+Game progress and theme choices are held in page memory and reset on reload.
 
-The UI queries the solver API with the current sequence of moves (e.g., `123123`) and receives back an array of scores corresponding to each column. The UI then translates this into actionable advice:
+## Where the scores come from
 
-- **Positive numbers** indicate a forced win in that many moves.
-- **Negative numbers** indicate a forced loss if that column is played.
-- **Zero** indicates a draw with perfect play.
-- The highest score determines the recommended move.
+The solver runs at [connect4.gamesolver.org](https://connect4.gamesolver.org/), outside this repository. After a move, the browser sends the move sequence to:
 
-## Tech Stack
+```text
+https://connect4.gamesolver.org/solve?pos=<move-sequence>
+```
 
-- **HTML5**: For the layout and semantic structure.
-- **CSS3**: For styling, responsive layouts (CSS Grid/Flexbox), and animations.
-- **JavaScript (ES6+)**: For game logic, DOM manipulation, and asynchronous API calls.
+The page displays the returned scores for the player whose turn it is:
+
+| Display | Meaning |
+| --- | --- |
+| Positive score | Winning move with perfect play |
+| Negative score | Losing move with perfect play |
+| `=` | Draw with perfect play |
+| `✕` | Full column or a move marked unavailable by the solver |
+| `?` | The solver request failed |
+
+The recommendation picks the highest-scoring legal column on your selected player's turn. Ties prefer columns closest to the center.
+
+The score is a solver evaluation, not a direct count of moves until the game ends. On an empty board, the page shows placeholder draw scores without contacting the solver; those opening scores are not a computed evaluation.
+
+The board's rules and win detection run in the browser. Evaluations need internet access and depend on the external service being available and allowing the browser request.
+
+## Run locally
+
+Open [`cfour_solver.html`](cfour_solver.html) in a browser. There is no package installation or build step.
+
+The CSS and JavaScript are included in the HTML. The font loads from Google Fonts, and evaluations come from the solver service.
+
+## Hosting
+
+The included `wrangler.toml` names a Cloudflare Worker, `cfour-solver`, and serves the repository directory as static assets. There is no backend solver or database in this project. The playable page is `cfour_solver.html`; the repository does not include an `index.html`.
+
